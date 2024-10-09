@@ -5,31 +5,103 @@ import java.util.Scanner;
 
 public class AbstractCar {
     public static void main(String[] args) {
-        Dealer dealer = new Dealer();
-        dealer.dealerMenu();
+        Dealers dealers = new Dealers();
+        dealers.dealersMenu(); // Run the main Dealers menu
+    }
+}
+
+class Dealers {
+    private ArrayList<Dealer> dealerList;
+    private Scanner scanner;
+
+    public Dealers() {
+        dealerList = new ArrayList<>();
+        scanner = new Scanner(System.in);
+    }
+
+    public void dealersMenu() {
+        while (true) {
+            System.out.println("\nDealers Menu:");
+            System.out.println("1. View Existing Dealers");
+            System.out.println("2. Create New Dealer");
+            System.out.println("3. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    viewDealers();
+                    break;
+                case 2:
+                    createNewDealer();
+                    break;
+                case 3:
+                    System.out.println("Exiting Dealers Menu...");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void viewDealers() {
+        if (dealerList.isEmpty()) {
+            System.out.println("No dealers available.");
+        } else {
+            System.out.println("\nList of Dealers:");
+            for (int i = 0; i < dealerList.size(); i++) {
+                System.out.println((i + 1) + ". " + dealerList.get(i).getName());
+            }
+
+            System.out.print("Select a dealer (enter number) to access their menu or 0 to return: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (choice > 0 && choice <= dealerList.size()) {
+                dealerList.get(choice - 1).dealerMenu();
+            } else if (choice == 0) {
+                return;
+            } else {
+                System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    private void createNewDealer() {
+        System.out.print("Enter the name of the new dealer: ");
+        String name = scanner.nextLine();
+        dealerList.add(new Dealer(name));
+        System.out.println("Dealer " + name + " added successfully.");
     }
 }
 
 class Dealer {
+    private String name;
     private ArrayList<Car> cars;
     private Scanner scanner;
 
-    public Dealer() {
+    public Dealer(String name) {
+        this.name = name;
         cars = new ArrayList<>();
         scanner = new Scanner(System.in);
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void dealerMenu() {
         while (true) {
-            System.out.println("\nDealer Menu:");
+            System.out.println("\nDealer Menu for " + name + ":");
             System.out.println("1. Show all cars");
             System.out.println("2. Add a car");
             System.out.println("3. Sell a car");
-            System.out.println("4. Exit");
+            System.out.println("4. Create a new deal");
+            System.out.println("5. Exit to Dealers Menu");
             System.out.print("Choose an option: ");
-
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -42,7 +114,10 @@ class Dealer {
                     sellCar();
                     break;
                 case 4:
-                    System.out.println("Exiting...");
+                    createNewDeal();
+                    break;
+                case 5:
+                    System.out.println("Exiting " + name + "'s Dealer Menu...");
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -69,11 +144,11 @@ class Dealer {
         double mileage = scanner.nextDouble();
         System.out.print("Enter car power: ");
         double power = scanner.nextDouble();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
 
         System.out.print("Is it a Four-Door or Two-Door car? (4/2): ");
         int type = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
 
         Car newCar;
         if (type == 4) {
@@ -106,6 +181,24 @@ class Dealer {
             System.out.println("Car not found.");
         }
     }
+
+    private void createNewDeal() {
+        System.out.print("Enter deal description: ");
+        String dealDescription = scanner.nextLine();
+        System.out.print("Enter discount percentage (0-100): ");
+        double discount = scanner.nextDouble();
+        scanner.nextLine();
+
+        System.out.println("New deal created: " + dealDescription + " with " + discount + "% discount.");
+    }
+}
+
+interface Car {
+    void run();
+    void accident();
+    void repair();
+    void stop();
+    double sell();
 }
 
 class FourDoorToyotaTester extends FourDoorToyota {
@@ -136,16 +229,6 @@ class TwoDoorToyotaTester extends TwoDoorToyota {
     }
 }
 
-// Car interface
-interface Car {
-    void run();
-    void accident();
-    void repair();
-    void stop();
-    double sell();
-}
-
-// Abstract class for FourDoorCar
 abstract class FourDoorCar implements Car {
     String carName;
     int numOfDoors;
@@ -289,25 +372,17 @@ abstract class TwoDoorCar implements Car {
 
     @Override
     public double sell() {
-        return 12000 + ((year == 0 ? 0.001 : year / (mileage == 0 ? 0.0001 : mileage)) * power);
+        return 15000 + ((year == 0 ? 0.001 : year / (mileage == 0 ? 0.0001 : mileage)) * power);
     }
 }
 
 abstract class TwoDoorToyota extends TwoDoorCar {
-    String miniChargerModel;
-
     public TwoDoorToyota(String carName) {
-        super(carName, 980, 300);
-        this.miniChargerModel = "SM-4k-2022";
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + "\n\tMini Charger Model: " + miniChargerModel;
+        super(carName, 1600, 200);
     }
 
     @Override
     public double sell() {
-        return super.sell() * 1.5;
+        return super.sell() * 0.5;
     }
 }
